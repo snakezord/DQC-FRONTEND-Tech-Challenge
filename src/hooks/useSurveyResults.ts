@@ -1,24 +1,21 @@
 import { useEffect, useState } from "react";
 import { Survey } from "../@types/data";
 import { Mocked_API_Call } from "../api/mocked";
-import SURVEY_RESULTS from "../data/survey_results.json";
 
 export const useSurveyResults = () => {
   const [survey, setSurvey] = useState<Survey>();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getSurvey = async () => {
+      const SURVEY_RESULTS = require("../data/survey_results.json");
       const survey = await Mocked_API_Call<Survey>(SURVEY_RESULTS as Survey);
       setSurvey(survey);
     };
-    try {
-      setLoading(true);
-      getSurvey();
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-    }
+
+    getSurvey()
+      .catch(() => setLoading(false))
+      .finally(() => setLoading(false));
   }, []);
 
   return { survey, loading };

@@ -11,7 +11,17 @@ interface AggregatedOpinion {
 
 const MAX_RATING = 5;
 
-export const useAggregatedData = (survey: Survey | undefined) =>
+interface AggregatedData {
+  freeTextQuestions: Question<string>[];
+  aggregatedOpinionScaleQuestions: AggregatedOpinion[];
+  happinessRatio: number;
+  potentialMaxRatingSum: number;
+  ratingRatioSum: number;
+  totalSumOfRatings: number;
+  totalParticipants: number;
+}
+
+export const useAggregatedData = (survey: Survey | undefined): AggregatedData =>
   useMemo(() => {
     if (!survey)
       return {
@@ -22,6 +32,7 @@ export const useAggregatedData = (survey: Survey | undefined) =>
         potentialMaxRatingSum: 0,
         ratingRatioSum: 0,
         totalSumOfRatings: 0,
+        totalParticipants: 0,
       };
 
     const freeTextQuestions = survey.questions.filter(
@@ -58,6 +69,10 @@ export const useAggregatedData = (survey: Survey | undefined) =>
       aggregatedOpinionScaleQuestions.map((q) => q.ratingRatio)
     );
 
+    const totalParticipants = Math.max(
+      ...aggregatedOpinionScaleQuestions.map((q) => q.participants)
+    );
+
     const happinessRatio = totalSumOfRatings / potentialMaxRatingSum;
 
     return {
@@ -67,6 +82,7 @@ export const useAggregatedData = (survey: Survey | undefined) =>
       potentialMaxRatingSum,
       ratingRatioSum,
       happinessRatio,
+      totalParticipants,
     };
   }, [survey]);
 
